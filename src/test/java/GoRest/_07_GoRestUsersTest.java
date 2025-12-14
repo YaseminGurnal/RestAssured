@@ -6,6 +6,7 @@ import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,7 +28,7 @@ public class _07_GoRestUsersTest {
                 .build();
 
     }
-
+       @Test
     public void CreateUser() {
         String rndFullName = randomUreteci.name().fullName();
         String rndEmail = randomUreteci.internet().emailAddress();
@@ -43,7 +44,10 @@ public class _07_GoRestUsersTest {
                 .body(newUser)
                 .when()
                 .post("users") //Http ile başlamıyorsa baseUrı
+
                 .then()
+                .log().body()
+                .statusCode(201)
         ;
     }
 
