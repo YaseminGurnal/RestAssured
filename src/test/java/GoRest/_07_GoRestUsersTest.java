@@ -17,6 +17,7 @@ import static org.hamcrest.Matchers.*;
 public class _07_GoRestUsersTest {
     RequestSpecification requestSpec;
     Faker randomUreteci = new Faker();
+    int userID = 0;
 
     @BeforeClass
     public void Setup() {
@@ -28,7 +29,8 @@ public class _07_GoRestUsersTest {
                 .build();
 
     }
-       @Test
+
+    @Test
     public void CreateUser() {
         String rndFullName = randomUreteci.name().fullName();
         String rndEmail = randomUreteci.internet().emailAddress();
@@ -39,16 +41,55 @@ public class _07_GoRestUsersTest {
         newUser.put("email", rndEmail);
         newUser.put("status", "actıve");
 
+        userID =
+                given()
+                        .spec(requestSpec)
+                        .body(newUser)
+                        .when()
+                        .post("users") //Http ile başlamıyorsa baseUrı
+
+                        .then()
+                        .log().body()
+                        .statusCode(201)
+                        .extract().path("id")
+        ;
+        System.out.println("userID = " + userID);
+    }
+
+    @Test(dependsOnMethods = "CreateUser")
+    public void getUserByID() {
+
         given()
                 .spec(requestSpec)
-                .body(newUser)
+                .log().uri()
+
                 .when()
-                .post("users") //Http ile başlamıyorsa baseUrı
+                .get("users/" + userID)
 
                 .then()
                 .log().body()
-                .statusCode(201)
+                .statusCode(200)
+                .body("id", equalTo(userID))
         ;
     }
 
+    @Test(dependsOnMethods = "getUserByID")
+    public void updateUser() {
+        String updName = "yasemin gurnal";
+        Map<String, String> updUser = new HashMap<>();
+        updUser.put("name", updName);
+
+        given()
+                .spec(requestSpec)
+
+                .when()
+                .put("users/" + userID)
+
+                .then()
+                .log().body()
+                .statusCode(200)
+                .body("id", equalTo(userID))
+                .body("name", equalTo(updName))
+        ;
+    }
 }
