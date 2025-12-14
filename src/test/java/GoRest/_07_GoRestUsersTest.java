@@ -93,7 +93,7 @@ public class _07_GoRestUsersTest {
         ;
     }
 
-    @Test
+    @Test(dependsOnMethods = "updateUser")
     public void deleteUser() {
         given()
                 .spec(requestSpec)
@@ -105,7 +105,7 @@ public class _07_GoRestUsersTest {
         ;
     }
 
-    @Test
+    @Test(dependsOnMethods = "deleteUser")
     public void deleteUserNegative() {
         given()
                 .spec(requestSpec)
