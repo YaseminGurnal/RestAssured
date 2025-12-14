@@ -74,7 +74,7 @@ public class _07_GoRestUsersTest {
     }
 
     @Test(dependsOnMethods = "getUserByID")
-    public void updateUser() {
+    public void updateUser() {   //Bu aşamadan sonra class çalıştırılmalı
         String updName = "yasemin gurnal";
         Map<String, String> updUser = new HashMap<>();
         updUser.put("name", updName);
@@ -90,6 +90,30 @@ public class _07_GoRestUsersTest {
                 .statusCode(200)
                 .body("id", equalTo(userID))
                 .body("name", equalTo(updName))
+        ;
+    }
+
+    @Test
+    public void deleteUser() {
+        given()
+                .spec(requestSpec)
+                .when()
+                .delete("users/" + userID)
+
+                .then()
+                .statusCode(204)
+        ;
+    }
+
+    @Test
+    public void deleteUserNegative() {
+        given()
+                .spec(requestSpec)
+                .when()
+                .delete("users/" + userID)
+
+                .then()
+                .statusCode(404)
         ;
     }
 }
