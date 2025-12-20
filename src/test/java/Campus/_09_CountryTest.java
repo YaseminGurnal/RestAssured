@@ -17,6 +17,8 @@ import static org.hamcrest.Matchers.*;
 public class _09_CountryTest {
     RequestSpecification reqSpec;
     Faker randomUreteci = new Faker();
+    String ulkeAdı = "";
+    String ulkeKodu = "";
 
     @BeforeClass
     public void Setup() {
@@ -50,8 +52,8 @@ public class _09_CountryTest {
 
     @Test
     public void CountryCreateTest() {
-        String ulkeAdı = randomUreteci.address().country() + randomUreteci.number().digits(5);
-        String ulkeKodu = randomUreteci.address().countryCode() + randomUreteci.number().digits(5);
+        ulkeAdı = randomUreteci.address().country() + randomUreteci.number().digits(5);
+        ulkeKodu = randomUreteci.address().countryCode() + randomUreteci.number().digits(5);
 
         Map<String, String> createCountry = new HashMap<>();
         createCountry.put("name", ulkeAdı);
@@ -69,6 +71,25 @@ public class _09_CountryTest {
                 .log().body()
                 .statusCode(201)
 
+        ;
+    }
+
+    @Test(dependsOnMethods = " CountryCreateTest")
+    public void createCountryNegativeTest() {
+        Map<String, String> createCountry = new HashMap<>();
+        createCountry.put("name", ulkeAdı);
+        createCountry.put("code", ulkeKodu);
+        given()
+                .spec(reqSpec)
+                .body(createCountry)
+
+                .when()
+                .post("/school-service/api/countries")
+
+                .then()
+                .log().body()
+                .statusCode(400)
+                .body("message", containsStringIgnoringCase("already"))
         ;
     }
 
