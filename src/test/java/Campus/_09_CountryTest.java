@@ -19,6 +19,7 @@ public class _09_CountryTest {
     Faker randomUreteci = new Faker();
     String ulkeAdı = "";
     String ulkeKodu = "";
+    String ulkeID = "";
 
     @BeforeClass
     public void Setup() {
@@ -60,16 +61,18 @@ public class _09_CountryTest {
         createCountry.put("code", ulkeKodu);
 
 
-        given()
-                .spec(reqSpec)
-                .body(createCountry)
+        ulkeID =
+                given()
+                        .spec(reqSpec)
+                        .body(createCountry)
 
-                .when()
-                .post("/school-service/api/countries")
+                        .when()
+                        .post("/school-service/api/countries")
 
-                .then()
-                .log().body()
-                .statusCode(201)
+                        .then()
+                        .log().body()
+                        .statusCode(201)
+                        .extract().path("id")
 
         ;
     }
@@ -93,5 +96,62 @@ public class _09_CountryTest {
         ;
     }
 
+    @Test(dependsOnMethods = "createCountryNegativeTest")
+    public void updateCountry() {
+        Map<String, String> updateCountry = new HashMap<>();
 
+        ulkeAdı = "ulke " + randomUreteci.number().digits(5);
+        ulkeKodu = "1344ymn" + randomUreteci.number().digits(5);
+
+        updateCountry.put("id", ulkeID);
+        updateCountry.put("name", ulkeAdı);
+        updateCountry.put("code", ulkeKodu);
+
+        given()
+                .spec(reqSpec)
+                .body(updateCountry)
+
+                .when()
+                .put("/school-service/api/countries")
+
+                .then()
+                .log().body()
+                .statusCode(200)
+                .body("name", equalTo(ulkeAdı))
+                .body("code", equalTo(ulkeKodu))
+        ;
+    }
+
+    @Test(dependsOnMethods = "updateCountry")
+    public void deleteCountry() {
+        given()
+                .spec(reqSpec)
+                .pathParam("ulkeID", ulkeID)
+                .log().uri()
+
+                .when()
+                .delete("/school-service/api/countries/{ulkeID}")
+
+                .then()
+                .log().body()
+                .statusCode(200)
+        ;
+    }
+
+    @Test(dependsOnMethods = "deleteCountry")
+    public void deleteCountryNegative() {
+        given()
+                .spec(reqSpec)
+                .pathParam("ulkeID", ulkeID)
+                .log().uri()
+
+                .when()
+                .delete("/school-service/api/countries/{ulkeID}")
+
+                .then()
+                .log().body()
+                .statusCode(400)
+                .body("message", containsStringIgnoringCase("Country not found"))
+        ;
+    }
 }
